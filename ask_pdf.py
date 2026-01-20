@@ -1,23 +1,10 @@
 import ollama
-import pypdf
 import os
 import argparse
-
-def extract_text_from_pdf(pdf_path: str) -> str:
-    if not os.path.exists(pdf_path):
-        print(f"Error: PDF file not found at '{pdf_path}'")
-        return ""
-
-    try:
-        text = ""
-        with open(pdf_path, 'rb') as file:
-            reader = pypdf.PdfReader(file)
-            for page in reader.pages:
-                text += page.extract_text() + "\n"
-        return text
-    except Exception as e:
-        print(f"Error extracting text from PDF: {e}")
-        return ""
+import chromadb
+import uuid
+import re
+from rag_utils import extract_text_from_pdf, chunk_text, OllamaEmbeddingFunction
 
 def main():
     parser = argparse.ArgumentParser(description="Ask a question about a PDF using Ollama.")
@@ -29,20 +16,55 @@ def main():
         print(f"Error: File not found at '{pdf_path}'")
         return
 
-    pdf_content = extract_text_from_pdf(pdf_path)
+    # Create a clean collection name from the filename
+    # ChromaDB requires names to be alphanumeric, underscores, or hyphens
+    filename = os.path.basename(pdf_path)
+    clean_name = re.sub(r'[^a-zA-Z0-9_-]', '_', os.path.splitext(filename)[0])
+    collection_name = f"pdf_{clean_name}"[:63] # Limit length to 63 chars
 
-    if not pdf_content:
-        print("Could not extract content from the PDF. Exiting.")
+    print("Connecting to ChromaDB Server (http://localhost:8000)...")
+    try:
+        # Connect to the running ChromaDB server (required for chromadb-admin)
+        client = chromadb.HttpClient(host='localhost', port=8000)
+        client.heartbeat()
+    except Exception:
+        print("\n❌ Error: Could not connect to ChromaDB server.")
+        print("Please open a NEW terminal window and run:")
+        print("chroma run --path ./chroma_db")
         return
 
-    print(f"Successfully extracted {len(pdf_content):,} characters from the PDF.")
+    collection = client.get_or_create_collection(name=collection_name, embedding_function=OllamaEmbeddingFunction())
+
+    # Only process the PDF if the collection is empty
+    if collection.count() == 0:
+        print("New PDF detected. Processing and embedding...")
+        pdf_content = extract_text_from_pdf(pdf_path)
+        if not pdf_content:
+            print("Could not extract content from the PDF. Exiting.")
+            return
+        
+        chunks = chunk_text(pdf_content)
+        collection.add(
+            documents=chunks,
+            ids=[str(uuid.uuid4()) for _ in chunks]
+        )
+        print(f"Added {len(chunks)} chunks to the knowledge base.")
+    else:
+        print(f"Loaded existing knowledge base for '{filename}' ({collection.count()} chunks).")
+
+    chat_history = []
 
     while True:
         question = input("\nWhat is your question about the PDF? (or type 'quit' to exit) ")
         if question.lower() == 'quit':
             break
 
-        prompt = f"Based on the following document, answer the question.\n\nDocument:\n{pdf_content}\n\nQuestion: {question}\n\nAnswer:"
+        results = collection.query(query_texts=[question], n_results=3)
+        context = "\n".join(results['documents'][0])
+        
+        # Build history string (last 3 turns) to provide context without using too many tokens
+        history_text = "\n".join([f"User: {q}\nAssistant: {a}" for q, a in chat_history[-3:]])
+        prompt = f"Based on the following context and conversation history, answer the question.\n\nContext:\n{context}\n\nHistory:\n{history_text}\n\nQuestion: {question}\n\nAnswer:"
 
         try:
             print("\nSending request to Ollama (model: llama3.2)...")
@@ -52,6 +74,9 @@ def main():
             )
             print("\nOllama's Response:")
             print(response['message']['content'])
+            
+            # Save the interaction to history
+            chat_history.append((question, response['message']['content']))
         except Exception as e:
             print(f"\nAn error occurred while interacting with Ollama: {e}")
             print("Please ensure the Ollama server is running and the 'llama3.2' model is available.")
