@@ -1,1 +1,39 @@
 1.pdf
+chroma_db/
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+env/
+venv/
+ENV/
+
+# Database files
+chroma/
+*.sqlite3
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Secrets and credentials
+*.env
+.env.*
+secrets.*
+
+# Other
+*.log
+*.bak
+*.tmp
