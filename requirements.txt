@@ -1,2 +1,7 @@
+python_version == "3.13"
 ollama==0.2.0
 pypdf==4.2.0
+llama-index==0.14.12
+llama-index-llms-ollama==0.9.1
+llama-index-embeddings-huggingface==0.2.2
+chromadb==1.4.1
