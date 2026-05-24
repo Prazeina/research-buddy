@@ -4,7 +4,9 @@ import argparse
 import chromadb
 import uuid
 import re
-from rag_utils import extract_text_from_pdf, chunk_text, OllamaEmbeddingFunction
+from rag_utils import extract_text_from_pdf, chunk_text, OllamaEmbeddingFunction, missing_ollama_models
+
+REQUIRED_MODELS = ['llama3.2', 'nomic-embed-text']
 
 def main():
     parser = argparse.ArgumentParser(description="Ask a question about a PDF using Ollama.")
@@ -14,6 +16,13 @@ def main():
 
     if not os.path.exists(pdf_path):
         print(f"Error: File not found at '{pdf_path}'")
+        return
+
+    missing = missing_ollama_models(REQUIRED_MODELS)
+    if missing:
+        print("\n❌ Required Ollama models are not installed (or Ollama isn't running):")
+        for name in missing:
+            print(f"   - {name}    →  ollama pull {name}")
         return
 
     # Create a clean collection name from the filename
