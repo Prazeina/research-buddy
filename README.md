@@ -38,8 +38,9 @@ Run the visual dashboard to inspect your vectors.
 
 **Using Docker:**
 ```bash
-docker run -p 3001:3000 -e CHROMA_URL=http://host.docker.internal:8000 flanker/chromadb-admin
+docker run -p 3001:3001 fengzhichao/chromadb-admin
 ```
+*Note: the image was previously published as `flanker/chromadb-admin` but is now `fengzhichao/chromadb-admin`. Set the ChromaDB connection string inside the UI (see below) rather than via an env var.*
 
 **Or using Node.js (Manual):**
 ```bash
