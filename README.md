@@ -1,6 +1,6 @@
 # The Research Synthesizer
 
-A local RAG (Retrieval-Augmented Generation) tool that lets you chat with your PDF documents using Ollama and ChromaDB.
+A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine — useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
 
 ## Prerequisites
 
@@ -52,17 +52,48 @@ npm run dev
 *Access the UI at `http://localhost:3001`.*
 
 ### Terminal 3: The Application
-Run the tool to process PDFs and chat.
+The CLI has three subcommands. Run `python3 rag.py --help` to see them.
 
-**Option A: Command Line Interface**
+**Add a paper to your library:**
 ```bash
-python3 ask_pdf.py your_file.pdf
+python3 rag.py add path/to/paper.pdf
+python3 rag.py add path/to/paper.pdf --title "Better Title If The Auto-Detect Picks A Bad One"
+```
+Re-adding the same PDF is a clean no-op (the paper_id is a content hash).
+
+**List the papers you've ingested:**
+```bash
+python3 rag.py list
 ```
 
-**Option B: Web Interface (Streamlit)**
+**Ask a question, across the whole library or scoped to one paper:**
+```bash
+python3 rag.py ask "what is the main contribution?"
+python3 rag.py ask --paper <paper_id> "how does the method work?"
+```
+The `paper_id` for each paper appears in `rag list` — it's a short content hash of the PDF.
+
+## The Web UI (easiest way to use it)
+
+Prefer clicking to typing commands? There's a local web app with the same features
+plus a **chat interface that remembers your conversation** (so follow-up questions
+like "what are its limitations?" work).
+
+You still need the ChromaDB server running (Terminal 1 above). Then, in another terminal:
+
 ```bash
 streamlit run app.py
 ```
+
+It opens at `http://localhost:8501`. From there you can:
+
+- **Upload** a PDF straight from your browser to add it to the library
+- **Browse and remove** papers in the sidebar, and scope questions to one paper
+- **Chat** with your library — answers cite `(Title, p.N)`, and the conversation is
+  saved to `chat_history.json` so it survives restarts (use **Clear conversation** to reset it)
+
+Everything stays on your machine, exactly like the CLI. The chat history is local
+and gitignored.
 
 ## Configuring ChromaDB Admin
 
