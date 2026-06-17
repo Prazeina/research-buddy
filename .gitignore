@@ -1,5 +1,8 @@
 1.pdf
 chroma_db/
+papers.json
+papers/
+chat_history.json
 # Python
 __pycache__/
 *.py[cod]
