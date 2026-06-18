@@ -180,10 +180,14 @@ def build_prompt(question: str, documents: list[str], metadatas: list[dict]) -> 
         for i, (doc, meta) in enumerate(zip(documents, metadatas), start=1)
     )
     return (
-        "You are helping a researcher recall and synthesize material from their paper library. "
-        "Answer the question using ONLY the sources below. "
-        "After each claim, cite the source using (Title, p.N) where N is the page number from the source. "
-        "If the sources don't answer the question, say so plainly rather than guessing.\n\n"
+        "You are a research assistant helping a researcher synthesize material from their paper library. "
+        "Answer the question using the sources below. Lead with a direct answer, not a disclaimer. "
+        "The answer rarely appears as one explicit sentence, so synthesize and draw reasonable "
+        "inferences across the relevant sources rather than demanding an exact match. "
+        "After each claim, cite the source you used with (Title, p.N) where N is the page number. "
+        "Do not rely on knowledge beyond the sources. "
+        "Only if the sources are genuinely unrelated to the question should you say the library "
+        "doesn't cover it; otherwise give your best grounded answer.\n\n"
         f"Sources:\n{context}\n\n"
         f"Question: {question}\n\n"
         "Answer:"
