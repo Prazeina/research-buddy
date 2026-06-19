@@ -1,0 +1,7 @@
+[
+  {"question": "What is the main contribution of this paper?", "type": "answerable"},
+  {"question": "What model architecture does the paper propose?", "type": "answerable"},
+  {"question": "What is the capital of Nepal?", "type": "off-topic"},
+  {"question": "In the future work section it discussed about flying cars?", "type": "false-premise"},
+  {"question": "What are the main limitations of the proposed method?", "type": "synthesis"}
+]
