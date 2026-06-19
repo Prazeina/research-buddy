@@ -1,7 +1,27 @@
 [
-  {"question": "What is the main contribution of this paper?", "type": "answerable"},
-  {"question": "What model architecture does the paper propose?", "type": "answerable"},
-  {"question": "What is the capital of Nepal?", "type": "off-topic"},
-  {"question": "In the future work section it discussed about flying cars?", "type": "false-premise"},
-  {"question": "What are the main limitations of the proposed method?", "type": "synthesis"}
+  {
+    "question": "What is the main contribution of this paper?",
+    "type": "answerable",
+    "expected": "The paper proposes TETS (Time-Enhanced Transformer for Security), an enhanced ContiFormer-based model that integrates time encoding with feature selection to detect DDoS attacks in IoT network traffic, improving accuracy on irregular, large-scale time-series data."
+  },
+  {
+    "question": "What model architecture does the paper propose?",
+    "type": "answerable",
+    "expected": "TETS extends ContiFormer, which combines Neural ODEs with the Transformer's attention mechanism to model continuous-time dynamics. It applies PIO-based feature selection to the input, and classifies network traffic through fully-connected layers followed by a Softmax output."
+  },
+  {
+    "question": "What is the capital of Nepal?",
+    "type": "off-topic",
+    "expected": "This question is not covered by the sources. The paper is about DDoS attack detection and machine learning, not geography, so the library does not answer it."
+  },
+  {
+    "question": "In the future work section it discussed about flying cars?",
+    "type": "false-premise",
+    "expected": "No. The paper does not mention flying cars. Its future work focuses on extending the model, such as incorporating additional temporal information and exploring further improvements to detection."
+  },
+  {
+    "question": "What are the main limitations of the proposed method?",
+    "type": "synthesis",
+    "expected": "The main limitation is the high preprocessing cost of PIO-based feature selection (around 11 hours), which adds overhead before training. The approach is also evaluated mainly on DDoS detection, so its generalization to other attack types is not established."
+  }
 ]

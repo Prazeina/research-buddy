@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import core
 
 from deepeval.test_case import LLMTestCase
-from deepeval.metrics import FaithfulnessMetric, AnswerRelevancyMetric
+from deepeval.metrics import FaithfulnessMetric, AnswerRelevancyMetric, ContextualPrecisionMetric, ContextualRecallMetric
 from deepeval.models import AnthropicModel
 
 
@@ -32,9 +32,11 @@ def main():
         questions_data = json.load(f)
 
     # 2. Set up the judge (Claude) and the metric.
-    judge = AnthropicModel(model="claude-haiku-4-5", max_tokens=4096)
+    judge = AnthropicModel(model="claude-sonnet-4-6", max_tokens=4096)
     metric = FaithfulnessMetric(threshold=0.7, model=judge, penalize_ambiguous_claims=True)
     relevancy = AnswerRelevancyMetric(threshold=0.7, model=judge)
+    ctx_precision = ContextualPrecisionMetric(threshold=0.7, model=judge)
+    ctx_recall = ContextualRecallMetric(threshold=0.7, model=judge)
     
     # 3. Package the three pieces deepeval needs into a test case. input -> the question, actual_output -> the answer, retrieval_context -> the chunks the answer was built from.
 
@@ -46,14 +48,18 @@ def main():
         question = item["question"]   # the question text
         qtype = item["type"]          # the tag (answerable / off-topic / ...)
         result = core.answer_question(collection, question)
+        expected = item["expected"]
         test_case = LLMTestCase(
             input=question,
             actual_output=result["answer"],
             retrieval_context=result["retrieval_context"],
+            expected_output = expected
         )
         # 4. Run the judge and read the result.
         metric.measure(test_case)
         relevancy.measure(test_case)
+        ctx_recall.measure(test_case)
+        ctx_precision.measure(test_case)
         verdict = "PASS" if metric.is_successful() else "FAIL"
 
         # keep a structured record of this question's result
@@ -65,8 +71,14 @@ def main():
             "faithfullness_passed": metric.is_successful(),
             "faithfullness_reason": metric.reason,
             "relevancy_score": relevancy.score,
-            "relevancy_passed": metric.is_successful(),
-            "relevancy_reason": relevancy.reason
+            "relevancy_passed": relevancy.is_successful(),
+            "relevancy_reason": relevancy.reason,
+            "precision_score": ctx_precision.score,
+            "precision_passed": ctx_precision.is_successful(),
+            "precision_reason": ctx_precision.reason,
+            "recall_score": ctx_recall.score,
+            "recall_passed": ctx_recall.is_successful(),
+            "recall_reason": ctx_recall.reason
         })
 
     # 5. Save all results to a timestamped JSON file so no run overwrites another.
