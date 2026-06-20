@@ -1,6 +1,8 @@
 # The Research Synthesizer
 
-A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine — useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
+https://github.com/user-attachments/assets/015cf6d0-8163-4c06-a1d3-1eee773a3bbe
+
+A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
 
 ## Prerequisites
 
