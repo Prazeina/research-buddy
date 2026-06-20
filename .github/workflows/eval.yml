@@ -1,0 +1,21 @@
+name: RAG Quality Gate
+
+# Run on every PR into main, and allow manual runs from the Actions tab.
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  faithfulness-gate:
+    # Self-hosted runner because the RAG needs the local Ollama + ChromaDB services, which must be running when this fires.
+    runs-on: self-hosted
+    steps:
+      - name: Check out the PR code
+        uses: actions/checkout@v4
+
+      - name: Run faithfulness quality gate
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          "$HOME/repos/The Research Synthesizer/.venv/bin/python" -m evals.ci_gate
