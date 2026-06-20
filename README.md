@@ -2,7 +2,38 @@
 
 https://github.com/user-attachments/assets/015cf6d0-8163-4c06-a1d3-1eee773a3bbe
 
-A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
+A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine — useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
+
+## 🧪 Quality Engineering: LLM Evaluation Harness & CI Gate
+
+Beyond the RAG app itself, this repo ships an automated **evaluation harness** that tests the *quality* of the RAG's answers — the hard part of shipping LLM features, since the output is non-deterministic and can hallucinate, so `assert output == expected` is useless.
+
+It uses [deepeval](https://github.com/confident-ai/deepeval) with an **LLM-as-judge** (Claude) to score every answer on four dimensions:
+
+| Metric | Question it answers |
+|---|---|
+| **Faithfulness** | Is the answer grounded in the retrieved sources (not hallucinated)? |
+| **Answer Relevancy** | Does the answer actually address the question? |
+| **Contextual Precision** | Are the relevant retrieved chunks ranked above the noise? |
+| **Contextual Recall** | Did retrieval fetch everything needed to answer? |
+
+The metrics are **adversarially validated** — fabricated claims are injected to confirm the judge actually fails them rather than rubber-stamping every answer.
+
+### CI Quality Gate
+
+The eval runs as a **CI quality gate** (GitHub Actions — see [`.github/workflows/eval.yml`](.github/workflows/eval.yml)): every pull request to `main` is scored automatically, and the build **fails if average faithfulness regresses below threshold** — regression testing for non-deterministic LLM output. Because the RAG depends on local Ollama + ChromaDB, the gate runs on a self-hosted runner.
+
+### Running the eval
+
+```bash
+# full eval — 4 metrics, saves a timestamped JSON report
+python -m evals.faithfullness
+
+# the CI gate check — faithfulness only, exits non-zero on regression
+python -m evals.ci_gate
+```
+
+Requires the ChromaDB server + Ollama running, and `ANTHROPIC_API_KEY` set (the judge). The question set lives in [`evals/questions.json`](evals/questions.json), tagged by type (answerable / off-topic / false-premise / synthesis).
 
 ## Prerequisites
 
