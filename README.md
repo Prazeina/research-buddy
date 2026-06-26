@@ -1,12 +1,12 @@
 # The Research Synthesizer
 
-https://github.com/user-attachments/assets/015cf6d0-8163-4c06-a1d3-1eee773a3bbe
+https://github.com/user-attachments/assets/6cac046e-afbe-4f3a-8b91-6b42176f8499
 
-A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine — useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
+A local RAG tool for building a personal library of research papers and querying it with Ollama and ChromaDB. Your papers and your queries never leave your machine useful for unpublished drafts, peer-review manuscripts, grant proposals, or any source material you can't send to cloud tools.
 
 ## 🧪 Quality Engineering: LLM Evaluation Harness & CI Gate
 
-Beyond the RAG app itself, this repo ships an automated **evaluation harness** that tests the *quality* of the RAG's answers — the hard part of shipping LLM features, since the output is non-deterministic and can hallucinate, so `assert output == expected` is useless.
+Beyond the RAG app itself, this repo ships an automated **evaluation harness** that tests the *quality* of the RAG's answers the hard part of shipping LLM features, since the output is non-deterministic and can hallucinate, so `assert output == expected` is useless.
 
 It uses [deepeval](https://github.com/confident-ai/deepeval) with an **LLM-as-judge** (Claude) to score every answer on four dimensions:
 
@@ -17,11 +17,11 @@ It uses [deepeval](https://github.com/confident-ai/deepeval) with an **LLM-as-ju
 | **Contextual Precision** | Are the relevant retrieved chunks ranked above the noise? |
 | **Contextual Recall** | Did retrieval fetch everything needed to answer? |
 
-The metrics are **adversarially validated** — fabricated claims are injected to confirm the judge actually fails them rather than rubber-stamping every answer.
+The metrics are **adversarially validated** - fabricated claims are injected to confirm the judge actually fails them rather than rubber-stamping every answer.
 
 ### CI Quality Gate
 
-The eval runs as a **CI quality gate** (GitHub Actions — see [`.github/workflows/eval.yml`](.github/workflows/eval.yml)): every pull request to `main` is scored automatically, and the build **fails if average faithfulness regresses below threshold** — regression testing for non-deterministic LLM output. Because the RAG depends on local Ollama + ChromaDB, the gate runs on a self-hosted runner.
+The eval runs as a **CI quality gate** (GitHub Actions - see [`.github/workflows/eval.yml`](.github/workflows/eval.yml)): every pull request to `main` is scored automatically, and the build **fails if average faithfulness regresses below threshold** - regression testing for non-deterministic LLM output. Because the RAG depends on local Ollama + ChromaDB, the gate runs on a self-hosted runner.
 
 ### Running the eval
 
@@ -104,7 +104,7 @@ python3 rag.py list
 python3 rag.py ask "what is the main contribution?"
 python3 rag.py ask --paper <paper_id> "how does the method work?"
 ```
-The `paper_id` for each paper appears in `rag list` — it's a short content hash of the PDF.
+The `paper_id` for each paper appears in `rag list` - it's a short content hash of the PDF.
 
 ## The Web UI (easiest way to use it)
 
@@ -122,7 +122,7 @@ It opens at `http://localhost:8501`. From there you can:
 
 - **Upload** a PDF straight from your browser to add it to the library
 - **Browse and remove** papers in the sidebar, and scope questions to one paper
-- **Chat** with your library — answers cite `(Title, p.N)`, and the conversation is
+- **Chat** with your library - answers cite `(Title, p.N)`, and the conversation is
   saved to `chat_history.json` so it survives restarts (use **Clear conversation** to reset it)
 
 Everything stays on your machine, exactly like the CLI. The chat history is local
